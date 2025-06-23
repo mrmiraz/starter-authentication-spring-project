@@ -3,6 +3,7 @@ package com.example.test.config;
 import com.example.test.service.MyUserDetailsService;
 import com.example.test.service.impl.AuthEntryPointJwt;
 import com.example.test.util.AuthTokenFilter;
+import com.example.test.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +24,7 @@ public class SecurityConfig {
     private AuthEntryPointJwt unauthorizedHandler;
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter();
+        return new AuthTokenFilter(new JwtUtil(), new MyUserDetailsService());
     }
     @Bean
     public AuthenticationManager authenticationManager(

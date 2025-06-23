@@ -17,10 +17,13 @@ import java.io.IOException;
 @Component
 //public class JwtFilter extends OncePerRequestFilter{
 public class AuthTokenFilter extends OncePerRequestFilter{
-    @Autowired
-    private JwtUtil jwtUtils;
-    @Autowired
-    private MyUserDetailsService userDetailsService;
+    private final JwtUtil jwtUtils;
+    private final MyUserDetailsService userDetailsService;
+
+    public AuthTokenFilter(JwtUtil jwtUtils, MyUserDetailsService userDetailsService) {
+        this.jwtUtils = jwtUtils;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
