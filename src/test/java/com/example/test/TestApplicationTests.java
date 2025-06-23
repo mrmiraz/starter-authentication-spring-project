@@ -14,7 +14,6 @@ class TestApplicationTests {
 	void contextLoads() {
 	}
 
-
 	@Test
 	public static void main(String[] args) {
 		byte[] key = Keys.secretKeyFor(SignatureAlgorithm.HS256).getEncoded();
