@@ -1,17 +1,17 @@
 package com.example.test.controller;
 
-import com.example.test.domain.dto.AuthRequest;
 import com.example.test.domain.entity.User;
 import com.example.test.repository.UserRepository;
-import com.example.test.service.MyUserDetailsService;
 import com.example.test.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/auth")
@@ -39,7 +39,7 @@ public class AuthController  {
         );
         System.out.println(user.getUsername());
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return jwtUtils.generateToken(userDetails.getUsername());
+        return jwtUtils.generateToken(userDetails.getUsername(), "MRZ");
     }
 
     @PostMapping("/signup")
