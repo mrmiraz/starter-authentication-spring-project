@@ -47,8 +47,10 @@ public class AuthService {
             String token = jwtUtils.generateToken(userDetails.getUsername(), "MRZ");
             return new TokenResponse(token, "");
 
-        } catch (UsernameNotFoundException | BadCredentialsException ex) {
-            throw new ApiException("Invalid username or password", "Please try again!");
+        } catch (UsernameNotFoundException ex) {
+            throw new ApiException("Invalid username!", "Please try again with valid credential!");
+        } catch (BadCredentialsException ex) {
+            throw new ApiException("Invalid password!", "Please try again with valid credential!");
         }
     }
 

@@ -1,7 +1,7 @@
 package com.example.test.config;
 
 import com.example.test.service.MyUserDetailsService;
-import com.example.test.service.impl.AuthEntryPointJwt;
+import com.example.test.util.AuthEntryPointJwt;
 import com.example.test.util.AuthTokenFilter;
 import com.example.test.util.JwtUtil;
 import lombok.RequiredArgsConstructor;

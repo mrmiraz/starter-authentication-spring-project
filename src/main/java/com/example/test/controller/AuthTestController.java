@@ -17,6 +17,6 @@ public class AuthTestController {
 
     @GetMapping("/user")
     public ApiResponse<?> userAccess() {
-        return ApiResponse.success("Access", "You access with your token!", "", HttpStatus.OK);
+        return ApiResponse.success("Access", "Congratulations, you successfully access with your token!", "", HttpStatus.OK);
     }
 }
