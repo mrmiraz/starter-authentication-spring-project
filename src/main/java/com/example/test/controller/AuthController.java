@@ -1,8 +1,12 @@
 package com.example.test.controller;
 
+import com.example.test.domain.dto.ApiResponse;
 import com.example.test.domain.entity.User;
+import com.example.test.exception.ApiException;
+import com.example.test.exception.BadRequestException;
 import com.example.test.repository.UserRepository;
 import com.example.test.util.JwtUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,17 +33,21 @@ public class AuthController  {
     }
 
     @PostMapping("/signin")
-    public String authenticateUser(@RequestBody User user) {
-        System.out.println(user.getUsername());
+    public ApiResponse<String> authenticateUser(@RequestBody User user) {
+        if (user.getUsername() == null || user.getUsername().isEmpty() ||
+                user.getPassword() == null || user.getPassword().isEmpty()) {
+            throw new BadRequestException("Username and password must not be empty");
+        }
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         user.getUsername(),
                         user.getPassword()
                 )
         );
-        System.out.println(user.getUsername());
+
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return jwtUtils.generateToken(userDetails.getUsername(), "MRZ");
+        String jwtToken = jwtUtils.generateToken(userDetails.getUsername(), "MRZ");
+        return ApiResponse.success("", jwtToken, HttpStatus.OK);
     }
 
     @PostMapping("/signup")

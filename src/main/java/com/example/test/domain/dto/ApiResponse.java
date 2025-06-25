@@ -6,32 +6,48 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+import java.util.Optional;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ApiResponse<T> {
-    private boolean success;
+    private String status; //success/error
+    private int code;
     private String message;
-    private T data;
-    private HttpStatus status;
+    private String description;
+    private T data; 
     private Long timestamp;
 
+    public static <T> ApiResponse<T> success(T data) {
+        return ApiResponse.<T>builder()
+                .status("success")
+                .code(HttpStatus.OK.value())
+                .message("")
+                .description("")
+                .data(data)
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+    
     public static <T> ApiResponse<T> success(String message, T data, HttpStatus status) {
         return ApiResponse.<T>builder()
-                .success(true)
+                .status("success")
+                .code(status.value())
                 .message(message)
+                .description("")
                 .data(data)
-                .status(status)
                 .timestamp(System.currentTimeMillis())
                 .build();
     }
 
-    public static <T> ApiResponse<T> error(String message, HttpStatus status) {
+    public static <T> ApiResponse<T> error(String message, String description, HttpStatus status) {
         return ApiResponse.<T>builder()
-                .success(false)
+                .status("error")
                 .message(message)
-                .status(status)
+                .description(Optional.ofNullable(description).orElse(""))
+                .code(status.value())
                 .timestamp(System.currentTimeMillis())
                 .build();
     }
