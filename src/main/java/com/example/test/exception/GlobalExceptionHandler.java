@@ -11,10 +11,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Map your custom exceptions to corresponding HTTP statuses
     private static final Map<Class<? extends ApiException>, HttpStatus> EXCEPTION_STATUS_MAP = Map.of(
             com.example.test.exception.BadRequestException.class, HttpStatus.ACCEPTED
-//            com.example.exception.ResourceNotFoundException.class, HttpStatus.NOT_FOUND
             // Add more mappings here as needed
     );
 
