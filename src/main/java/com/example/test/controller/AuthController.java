@@ -1,6 +1,7 @@
 package com.example.test.controller;
 
 import com.example.test.domain.dto.ApiResponse;
+import com.example.test.domain.dto.TokenResponse;
 import com.example.test.domain.entity.User;
 import com.example.test.exception.ApiException;
 import com.example.test.exception.BadRequestException;
@@ -33,7 +34,7 @@ public class AuthController  {
     }
 
     @PostMapping("/signin")
-    public ApiResponse<String> authenticateUser(@RequestBody User user) {
+    public ApiResponse<?> authenticateUser(@RequestBody User user) {
         if (user.getUsername() == null || user.getUsername().isEmpty() ||
                 user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new BadRequestException("Username and password must not be empty");
@@ -47,13 +48,14 @@ public class AuthController  {
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String jwtToken = jwtUtils.generateToken(userDetails.getUsername(), "MRZ");
-        return ApiResponse.success("", jwtToken, HttpStatus.OK);
+
+        return ApiResponse.success("Generated token successfully","", new TokenResponse(jwtToken, ""), HttpStatus.OK);
     }
 
     @PostMapping("/signup")
-    public String registerUser(@RequestBody User user) {
+    public ApiResponse<?>  registerUser(@RequestBody User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
-            return "Error: Username is already taken!";
+            throw new ApiException("User already exist.", "");
         }
         // Create new user's account
         User newUser = new User(
@@ -62,6 +64,6 @@ public class AuthController  {
                 encoder.encode(user.getPassword())
         );
         userRepository.save(newUser);
-        return "User registered successfully!";
+        return ApiResponse.success("User registered successfully!", "",newUser, HttpStatus.OK);
     }
 }

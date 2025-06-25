@@ -20,7 +20,7 @@ public class ApiResponse<T> {
     private T data; 
     private Long timestamp;
 
-    public static <T> ApiResponse<T> success(T data) {
+   /* public static <T> ApiResponse<T> success(T data) {
         return ApiResponse.<T>builder()
                 .status("success")
                 .code(HttpStatus.OK.value())
@@ -29,14 +29,14 @@ public class ApiResponse<T> {
                 .data(data)
                 .timestamp(System.currentTimeMillis())
                 .build();
-    }
+    }*/
     
-    public static <T> ApiResponse<T> success(String message, T data, HttpStatus status) {
+    public static <T> ApiResponse<T> success(String message, String description, T data, HttpStatus status) {
         return ApiResponse.<T>builder()
                 .status("success")
                 .code(status.value())
                 .message(message)
-                .description("")
+                .description(Optional.ofNullable(description).orElse(""))
                 .data(data)
                 .timestamp(System.currentTimeMillis())
                 .build();
