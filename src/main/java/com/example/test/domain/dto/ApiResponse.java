@@ -17,7 +17,7 @@ public class ApiResponse<T> {
     private int code;
     private String message;
     private String description;
-    private T data; 
+    private T data;
     private Long timestamp;
 
    /* public static <T> ApiResponse<T> success(T data) {

@@ -1,5 +1,6 @@
 package com.example.test.service;
 
+import com.example.test.domain.dto.MyUserDetails;
 import com.example.test.domain.entity.User;
 import com.example.test.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +22,6 @@ public class MyUserDetailsService  implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User Not Found with username: " + username);
         }
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                Collections.emptyList()
-        );
+        return new MyUserDetails(user);
     }
 }

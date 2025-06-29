@@ -1,5 +1,6 @@
 package com.example.test.util;
 
+import com.example.test.domain.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -15,8 +16,10 @@ import java.util.Date;
 public class JwtUtil {
     @Value("${jwt.secret}")
     private String jwtSecret;
-    @Value("${jwt.expiration}")
-    private int jwtExpirationMs;
+    @Value("${jwt.accessTokenExpirationMs}")
+    private long accessTokenExpirationMs;
+    @Value("${jwt.refreshTokenExpirationMs}")
+    private long refreshTokenExpirationMs;
     private SecretKey key;
     // Initializes the key after the class is instantiated and the jwtSecret is injected,
     // preventing the repeated creation of the key and enhancing performance
@@ -24,16 +27,27 @@ public class JwtUtil {
     public void init() {
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
-    // Generate JWT token
-    public String generateToken(String username, String initial) {
+
+    public String generateRefreshToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
-                .claim("authorization", initial)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .setExpiration(new Date((new Date()).getTime() + refreshTokenExpirationMs))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    // Generate JWT token
+    public String generateAccessToken(User user) {
+        return Jwts.builder()
+                .setSubject(user.getUsername())
+//                .claim("authorization", user.getInitial())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + accessTokenExpirationMs))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     // Get username from JWT token
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()

@@ -1,9 +1,6 @@
 package com.example.test.controller;
 
-import com.example.test.domain.dto.ApiResponse;
-import com.example.test.domain.dto.SignInRequest;
-import com.example.test.domain.dto.SignupRequest;
-import com.example.test.domain.dto.TokenResponse;
+import com.example.test.domain.dto.*;
 import com.example.test.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,5 +27,11 @@ public class AuthController  {
     public ApiResponse<?> registerUser(@RequestBody SignupRequest signupRequest) {
         authService.registerUser(signupRequest);
         return ApiResponse.success("User registered successfully!", "", "", HttpStatus.OK);
+    }
+
+    @PostMapping("/refresh")
+    public ApiResponse<?> refreshToken(@RequestBody TokenRefreshRequest signInRequest) {
+        TokenResponse tokenResponse = authService.refreshTokenResponse(signInRequest);
+        return ApiResponse.success("", "", tokenResponse, HttpStatus.OK);
     }
 }

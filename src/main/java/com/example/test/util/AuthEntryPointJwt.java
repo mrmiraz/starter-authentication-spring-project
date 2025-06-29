@@ -23,7 +23,7 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
         ApiResponse<?> apiResponse = ApiResponse.error(
                 "Unauthorized",
-                "Token has expired. Please regenerate token with your credential.",
+                "Token has expired. Please sign in again with your credential.",
                 HttpStatus.UNAUTHORIZED
         );
 
