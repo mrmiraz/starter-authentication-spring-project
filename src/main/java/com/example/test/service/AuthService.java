@@ -3,6 +3,7 @@ package com.example.test.service;
 import com.example.test.domain.dto.*;
 import com.example.test.domain.entity.RefreshToken;
 import com.example.test.domain.entity.User;
+import com.example.test.enums.UserType;
 import com.example.test.exception.ApiException;
 import com.example.test.exception.BadRequestException;
 import com.example.test.repository.RefreshTokenRepository;
@@ -15,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
 
 @Service
 public class AuthService {
@@ -35,20 +38,21 @@ public class AuthService {
     }
 
     public void registerUser(SignupRequest signupRequest) {
-        if (signupRequest.getUsername() == null || signupRequest.getUsername().isEmpty() ||
-                signupRequest.getPassword() == null || signupRequest.getPassword().isEmpty()) {
+        if (isBlank(signupRequest.getUsername()) || isBlank(signupRequest.getPassword())) {
             throw new BadRequestException("Username and password must not be empty");
         }
 
-        if (signupRequest.getType() == null) {
-            throw new BadRequestException("User type must not be empty");
-        }
+        UserType userType = Arrays.stream(UserType.values())
+                .filter(type -> type.name().equalsIgnoreCase(signupRequest.getType()))
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("Invalid user type"));
         if (userRepository.existsByUsername(signupRequest.getUsername())) {
             throw new ApiException("User already exists", "");
         }
         User user = new User();
         user.setUsername(signupRequest.getUsername());
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        user.setType(userType.name());
         userRepository.save(user);
     }
 

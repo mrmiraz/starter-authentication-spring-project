@@ -1,6 +1,9 @@
 package com.example.test.domain.entity;
+import com.example.test.enums.UserType;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Set;
 
 @Getter
 @Setter
@@ -15,4 +18,7 @@ public class User {
     @Column(unique = true)
     private String username;
     private String password;
+    private String type;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Role> roles;
 }
