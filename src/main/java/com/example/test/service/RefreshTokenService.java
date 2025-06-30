@@ -3,6 +3,7 @@ package com.example.test.service;
 import com.example.test.domain.dto.SignInRequest;
 import com.example.test.domain.entity.RefreshToken;
 import com.example.test.domain.entity.User;
+import com.example.test.exception.ApiException;
 import com.example.test.repository.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,7 @@ public class RefreshTokenService {
     public void verifyExpiration(RefreshToken token) {
         if (token.getExpiryDate().isBefore(Instant.now())) {
             refreshTokenRepository.delete(token);
-            throw new RuntimeException("Refresh token expired! Please make a new sign-in request.");
+            throw new ApiException("Refresh token expired! Please make a new sign-in request.", "");
         }
     }
 }

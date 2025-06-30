@@ -30,8 +30,14 @@ public class AuthController  {
         return ApiResponse.success("Generated token successfully", "", tokenResponse, HttpStatus.OK);
     }
 
-    @PostMapping("/refresh")
+    @PostMapping("/refresh-token")
     public ApiResponse<?> refreshToken(@RequestBody TokenRefreshRequest tokenRefreshRequest) {
+        TokenResponse tokenResponse = authService.refreshAccessToken(tokenRefreshRequest);
+        return ApiResponse.success("", "", tokenResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("/sign-out")
+    public ApiResponse<?> singOut(@RequestBody TokenRefreshRequest tokenRefreshRequest) {
         TokenResponse tokenResponse = authService.refreshAccessToken(tokenRefreshRequest);
         return ApiResponse.success("", "", tokenResponse, HttpStatus.OK);
     }
