@@ -1,5 +1,6 @@
 package com.example.test.domain.dto;
 
+import com.example.test.enums.UserType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,4 +11,5 @@ import lombok.NoArgsConstructor;
 public class SignupRequest {
     private String username;
     private String password;
+    private UserType type;
 }

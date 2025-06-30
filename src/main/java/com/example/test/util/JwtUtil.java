@@ -28,15 +28,6 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateRefreshToken(String username) {
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + refreshTokenExpirationMs))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
-    }
-
     // Generate JWT token
     public String generateAccessToken(User user) {
         return Jwts.builder()

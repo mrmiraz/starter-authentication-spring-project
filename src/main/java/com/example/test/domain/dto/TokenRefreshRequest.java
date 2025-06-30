@@ -4,5 +4,7 @@ import lombok.Data;
 
 @Data
 public class TokenRefreshRequest {
-    private String token;
+    private String refreshToken;
+    private String clientInstanceId;
+    private String oldAccessToken;
 }

@@ -1,11 +1,10 @@
 package com.example.test.service;
 
+import com.example.test.domain.dto.SignInRequest;
 import com.example.test.domain.entity.RefreshToken;
 import com.example.test.domain.entity.User;
 import com.example.test.repository.RefreshTokenRepository;
-import com.example.test.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -17,32 +16,47 @@ public class RefreshTokenService {
     @Value("${jwt.refreshTokenExpirationMs}")
     private long refreshTokenDurationMs;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserRepository userRepository;
 
-    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
+    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
-        this.userRepository = userRepository;
     }
 
-    public String createRefreshToken(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found with username: " + username);
+    public String createRefreshToken(SignInRequest signInRequest, User user) {
+        // Try to find existing refresh token by clientInstanceId
+        Optional<RefreshToken> existingTokenOpt = refreshTokenRepository
+                .findByClientInstanceId(signInRequest.getClientInstanceId());
+
+        RefreshToken refreshToken;
+
+        if (existingTokenOpt.isPresent()) {
+            // Option 1: Update the existing token
+            refreshToken = existingTokenOpt.get();
+            refreshToken.setUser(user);
+            refreshToken.setDeviceId(signInRequest.getDeviceId());
+            refreshToken.setDeviceName(signInRequest.getDeviceName());
+            refreshToken.setPlatform(signInRequest.getPlatform());
+            refreshToken.setToken(UUID.randomUUID().toString());
+            refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+        } else {
+            // Option 2: Create a new token if none exists
+            refreshToken = new RefreshToken();
+            refreshToken.setUser(user);
+            refreshToken.setClientInstanceId(signInRequest.getClientInstanceId());
+            refreshToken.setDeviceId(signInRequest.getDeviceId());
+            refreshToken.setDeviceName(signInRequest.getDeviceName());
+            refreshToken.setPlatform(signInRequest.getPlatform());
+            refreshToken.setToken(UUID.randomUUID().toString());
+            refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
         }
-        Optional<RefreshToken> existingToken = refreshTokenRepository.findByUser(user);
-        RefreshToken refreshToken = existingToken.orElse(new RefreshToken());
-        refreshToken.setUser(user);
-        refreshToken.setToken(UUID.randomUUID().toString());
-        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+
         refreshTokenRepository.save(refreshToken);
         return refreshToken.getToken();
     }
 
-    public RefreshToken verifyExpiration(RefreshToken token) {
+    public void verifyExpiration(RefreshToken token) {
         if (token.getExpiryDate().isBefore(Instant.now())) {
             refreshTokenRepository.delete(token);
             throw new RuntimeException("Refresh token expired! Please make a new sign-in request.");
         }
-        return token;
     }
 }

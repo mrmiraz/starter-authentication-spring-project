@@ -36,28 +36,39 @@ public class AuthService {
         this.refreshTokenService = refreshTokenService;
     }
 
-    public TokenResponse refreshTokenResponse(TokenRefreshRequest tokenRefreshRequest) {
-        try {
-            String token = tokenRefreshRequest.getToken();
+    public void registerUser(SignupRequest signupRequest) {
+        if (signupRequest.getUsername() == null || signupRequest.getUsername().isEmpty() ||
+                signupRequest.getPassword() == null || signupRequest.getPassword().isEmpty()) {
+            throw new BadRequestException("Username and password must not be empty");
+        }
 
-            Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByToken(token);
-            if (optionalRefreshToken.isEmpty()) {
-                throw new ApiException("Refresh token not found", "Token might be invalid or expired.");
-            }
+        if (signupRequest.getType() == null) {
+            throw new BadRequestException("User type must not be empty");
+        }
+        if (userRepository.existsByUsername(signupRequest.getUsername())) {
+            throw new ApiException("User already exists", "");
+        }
+        User user = new User();
+        user.setUsername(signupRequest.getUsername());
+        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        userRepository.save(user);
+    }
 
-            RefreshToken refreshToken = refreshTokenService.verifyExpiration(optionalRefreshToken.get());
-            User user = refreshToken.getUser();
-
-            String accessToken = jwtUtils.generateAccessToken(user);
-
-            TokenResponse tokenResponse = new TokenResponse(accessToken, token);
-            return tokenResponse;
-        } catch (RuntimeException ex) {
-            throw new ApiException("Refresh token not found", "Please make a new sign-in request.");
+    private void validateSignInRequest(SignInRequest request) {
+        if (isBlank(request.getUsername()) || isBlank(request.getPassword())) {
+            throw new BadRequestException("Username and password must not be empty.");
+        }
+        if (isBlank(request.getDeviceId()) || isBlank(request.getClientInstanceId())) {
+            throw new BadRequestException("Device ID and client instance ID must not be empty.");
         }
     }
 
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
     public TokenResponse authenticateUser(SignInRequest signInRequest) {
+        validateSignInRequest(signInRequest);
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -67,26 +78,28 @@ public class AuthService {
             );
 
             MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
-            String accessToken = jwtUtils.generateAccessToken(userDetails.getUser());
-            String refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
+            User user = userDetails.getUser();
+
+            String accessToken = jwtUtils.generateAccessToken(user);
+            String refreshToken = refreshTokenService.createRefreshToken(signInRequest, user);
+
             return new TokenResponse(accessToken, refreshToken);
-        } catch (UsernameNotFoundException ex) {
-            throw new ApiException("Invalid username!", "Please try again with valid credential!");
-        } catch (BadCredentialsException ex) {
-            throw new ApiException("Invalid password!", "Please try again with valid credential!");
+        } catch (UsernameNotFoundException | BadCredentialsException ex) {
+            throw new ApiException("Invalid credentials!", "Please try again with valid credentials.");
         }
     }
 
-    public void registerUser(SignupRequest signupRequest) {
-        if (signupRequest.getUsername() == null || signupRequest.getUsername().isEmpty() ||
-                signupRequest.getPassword() == null || signupRequest.getPassword().isEmpty()) {
-            throw new BadRequestException("Username and password must not be empty");
-        }
+    public TokenResponse refreshAccessToken(TokenRefreshRequest tokenRefreshRequest) {
+        String refreshTokenStr = tokenRefreshRequest.getRefreshToken();
+        String clientInstanceId = tokenRefreshRequest.getClientInstanceId();
 
-        if (userRepository.existsByUsername(signupRequest.getUsername())) {
-            throw new ApiException("User already exists", "");
-        }
-        User user = new User(null, signupRequest.getUsername(), passwordEncoder.encode(signupRequest.getPassword()));
-        userRepository.save(user);
+        RefreshToken refreshToken = refreshTokenRepository
+                .findByTokenAndClientInstanceId(refreshTokenStr, clientInstanceId)
+                .orElseThrow(() -> new ApiException("Refresh token not found", "Token might be invalid or expired."));
+
+        refreshTokenService.verifyExpiration(refreshToken);
+        User user = refreshToken.getUser();
+        String accessToken = jwtUtils.generateAccessToken(user);
+        return new TokenResponse(accessToken, refreshTokenStr);
     }
 }

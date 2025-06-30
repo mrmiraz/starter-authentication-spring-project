@@ -17,11 +17,6 @@ public class AuthController  {
         this.authService = authService;
     }
 
-    @PostMapping("/signin")
-    public ApiResponse<?> authenticateUser(@RequestBody SignInRequest signInRequest) {
-        TokenResponse tokenResponse = authService.authenticateUser(signInRequest);
-        return ApiResponse.success("Generated token successfully", "", tokenResponse, HttpStatus.OK);
-    }
 
     @PostMapping("/signup")
     public ApiResponse<?> registerUser(@RequestBody SignupRequest signupRequest) {
@@ -29,9 +24,15 @@ public class AuthController  {
         return ApiResponse.success("User registered successfully!", "", "", HttpStatus.OK);
     }
 
+    @PostMapping("/signin")
+    public ApiResponse<?> authenticateUser(@RequestBody SignInRequest signInRequest) {
+        TokenResponse tokenResponse = authService.authenticateUser(signInRequest);
+        return ApiResponse.success("Generated token successfully", "", tokenResponse, HttpStatus.OK);
+    }
+
     @PostMapping("/refresh")
-    public ApiResponse<?> refreshToken(@RequestBody TokenRefreshRequest signInRequest) {
-        TokenResponse tokenResponse = authService.refreshTokenResponse(signInRequest);
+    public ApiResponse<?> refreshToken(@RequestBody TokenRefreshRequest tokenRefreshRequest) {
+        TokenResponse tokenResponse = authService.refreshAccessToken(tokenRefreshRequest);
         return ApiResponse.success("", "", tokenResponse, HttpStatus.OK);
     }
 }
