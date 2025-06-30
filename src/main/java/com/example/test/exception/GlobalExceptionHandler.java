@@ -26,8 +26,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ApiResponse<Object> handleAllExceptions(Exception ex) {
-        // Log exception here if needed
         log.error("Exception occurred: {}", ex.getMessage());
-        return ApiResponse.error("Something went wrong!", "Please try again!",  HttpStatus.INTERNAL_SERVER_ERROR);
+        return ApiResponse.error("Something went wrong! Please try again later.", "",  HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

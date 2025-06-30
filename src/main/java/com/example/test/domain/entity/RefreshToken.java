@@ -40,5 +40,4 @@ public class RefreshToken {
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     private User user;
-
 }

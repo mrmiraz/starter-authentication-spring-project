@@ -100,4 +100,13 @@ public class AuthService {
         String accessToken = jwtUtils.generateAccessToken(user);
         return new TokenResponse(accessToken, refreshTokenStr);
     }
+
+    public void signOut(SignOutRequest signOutRequest) {
+        String refreshTokenStr = signOutRequest.getRefreshToken();
+        String clientInstanceId = signOutRequest.getClientInstanceId();
+        RefreshToken refreshToken = refreshTokenRepository
+                .findByTokenAndClientInstanceId(refreshTokenStr, clientInstanceId)
+                .orElseThrow(() -> new ApiException("Refresh token not found", "Token might be invalid or expired."));
+        refreshTokenRepository.delete(refreshToken);
+    }
 }

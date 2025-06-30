@@ -47,6 +47,7 @@ public class JwtUtil {
                 .getBody()
                 .getSubject();
     }
+
     // Validate JWT token
     public boolean validateJwtToken(String token) {
         try {

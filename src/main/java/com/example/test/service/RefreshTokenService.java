@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,33 +22,17 @@ public class RefreshTokenService {
     }
 
     public String createRefreshToken(SignInRequest signInRequest, User user) {
-        // Try to find existing refresh token by clientInstanceId
-        Optional<RefreshToken> existingTokenOpt = refreshTokenRepository
-                .findByClientInstanceId(signInRequest.getClientInstanceId());
+        RefreshToken refreshToken = refreshTokenRepository
+                .findByClientInstanceId(signInRequest.getClientInstanceId())
+                .orElseGet(RefreshToken::new);
 
-        RefreshToken refreshToken;
-
-        if (existingTokenOpt.isPresent()) {
-            // Option 1: Update the existing token
-            refreshToken = existingTokenOpt.get();
-            refreshToken.setUser(user);
-            refreshToken.setDeviceId(signInRequest.getDeviceId());
-            refreshToken.setDeviceName(signInRequest.getDeviceName());
-            refreshToken.setPlatform(signInRequest.getPlatform());
-            refreshToken.setToken(UUID.randomUUID().toString());
-            refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
-        } else {
-            // Option 2: Create a new token if none exists
-            refreshToken = new RefreshToken();
-            refreshToken.setUser(user);
-            refreshToken.setClientInstanceId(signInRequest.getClientInstanceId());
-            refreshToken.setDeviceId(signInRequest.getDeviceId());
-            refreshToken.setDeviceName(signInRequest.getDeviceName());
-            refreshToken.setPlatform(signInRequest.getPlatform());
-            refreshToken.setToken(UUID.randomUUID().toString());
-            refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
-        }
-
+        refreshToken.setUser(user);
+        refreshToken.setClientInstanceId(signInRequest.getClientInstanceId());
+        refreshToken.setDeviceId(signInRequest.getDeviceId());
+        refreshToken.setDeviceName(signInRequest.getDeviceName());
+        refreshToken.setPlatform(signInRequest.getPlatform());
+        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
         refreshTokenRepository.save(refreshToken);
         return refreshToken.getToken();
     }

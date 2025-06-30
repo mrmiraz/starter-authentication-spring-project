@@ -17,7 +17,6 @@ public class AuthController  {
         this.authService = authService;
     }
 
-
     @PostMapping("/signup")
     public ApiResponse<?> registerUser(@RequestBody SignupRequest signupRequest) {
         authService.registerUser(signupRequest);
@@ -37,8 +36,8 @@ public class AuthController  {
     }
 
     @PostMapping("/sign-out")
-    public ApiResponse<?> singOut(@RequestBody TokenRefreshRequest tokenRefreshRequest) {
-        TokenResponse tokenResponse = authService.refreshAccessToken(tokenRefreshRequest);
-        return ApiResponse.success("", "", tokenResponse, HttpStatus.OK);
+    public ApiResponse<?> singOut(@RequestBody SignOutRequest signOutRequest) {
+        authService.signOut(signOutRequest);
+        return ApiResponse.success("Successfully logout!", "", "", HttpStatus.OK);
     }
 }
