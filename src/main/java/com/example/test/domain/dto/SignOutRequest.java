@@ -5,6 +5,5 @@ import lombok.Data;
 @Data
 public class SignOutRequest {
     private String refreshToken;
-    private String accessToken;
-    private String clientInstanceId;;
+    private String clientInstanceId;
 }
