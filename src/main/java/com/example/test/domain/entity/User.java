@@ -1,7 +1,10 @@
 package com.example.test.domain.entity;
-import com.example.test.enums.UserType;
+
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Set;
 

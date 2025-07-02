@@ -3,7 +3,6 @@ package com.example.test.service;
 import com.example.test.domain.dto.SignInRequest;
 import com.example.test.domain.entity.RefreshToken;
 import com.example.test.domain.entity.User;
-import com.example.test.enums.UserType;
 import com.example.test.exception.ApiException;
 import com.example.test.repository.RefreshTokenRepository;
 import org.springframework.beans.factory.annotation.Value;

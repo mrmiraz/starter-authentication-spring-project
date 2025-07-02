@@ -8,7 +8,8 @@ import jakarta.persistence.ManyToOne;
 public class Permission {
     @Id
     private Long id;
-    private String name; // e.g., "CURRICULUM_UPDATE"
+    private String name; // "CURRICULUM_UPDATE"
+    private String description; // "Description of the permission"
 
     @ManyToOne
     private Feature feature;
